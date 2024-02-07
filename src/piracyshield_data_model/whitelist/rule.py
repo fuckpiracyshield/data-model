@@ -13,7 +13,7 @@ class WhitelistRule:
 
     REGISTRAR = [
         Required(),
-        String(allowed = ' -'),
+        String(allowed = ' .,-_'),
         Length(minimum = 3, maximum = 255)
     ]
 

@@ -2,8 +2,7 @@ from piracyshield_data_model.base import BaseModel
 
 from piracyshield_component.validation.validator import Validator
 
-from piracyshield_data_model.ticket.item.genre.model import TicketItemGenreModel
-
+from piracyshield_data_model.whitelist.genre.model import WhitelistGenreModel
 from piracyshield_data_model.whitelist.rule import WhitelistRule
 from piracyshield_data_model.ticket.rule import TicketRule
 
@@ -27,24 +26,32 @@ class WhitelistModel(BaseModel):
         """
         Validates the parameters.
 
-        :param genre: FQDN, IPv4 or IPv6 type.
+        :param genre: FQDN, IPv4, IPv6 or a CIDR IPv4/IPv6 class.
         :param value: value of the item.
         :param is_active: if the item is already active or not.
         :param registrar: registrar of the FQDN item.
-        :param as_code: AS code of the IPv4 or IPv6 item.
+        :param as_code: AS code of the IPv4, IPv6 or CIDR classes.
         """
 
         match genre:
-            case TicketItemGenreModel.FQDN.value:
+            case WhitelistGenreModel.FQDN.value:
                 self.value = self._validate_fqdn(value)
                 self.registrar = self._validate_registrar(registrar)
 
-            case TicketItemGenreModel.IPV4.value:
+            case WhitelistGenreModel.IPV4.value:
                 self.value = self._validate_ipv4(value)
                 self.as_code = self._validate_as_code(as_code)
 
-            case TicketItemGenreModel.IPV6.value:
+            case WhitelistGenreModel.IPV6.value:
                 self.value = self._validate_ipv6(value)
+                self.as_code = self._validate_as_code(as_code)
+
+            case WhitelistGenreModel.CIDR_IPV4.value:
+                self.value = self._validate_cidr_ipv4(value)
+                self.as_code = self._validate_as_code(as_code)
+
+            case WhitelistGenreModel.CIDR_IPV6.value:
+                self.value = self._validate_cidr_ipv6(value)
                 self.as_code = self._validate_as_code(as_code)
 
             case _:
@@ -111,6 +118,46 @@ class WhitelistModel(BaseModel):
 
         if not validator.is_valid():
             raise WhitelistModelIPv6NonValidException(validator.errors)
+
+        return value
+
+    def _validate_cidr_ipv4(self, value: str) -> str | Exception:
+        """
+        Validates the CIDR IPv4 class.
+
+        :param value: a valid CIDR IPv4 class.
+        :return: the same value.
+        """
+
+        if not value or not len(value):
+            raise WhitelistModelCIDRIPv4MissingException()
+
+        validator = Validator(value, WhitelistRule.CIDR_IPV4)
+
+        validator.validate()
+
+        if not validator.is_valid():
+            raise WhitelistModelCIDRIPv4NonValidException(validator.errors)
+
+        return value
+
+    def _validate_cidr_ipv6(self, value: str) -> str | Exception:
+        """
+        Validates the CIDR IPv6 class.
+
+        :param value: a valid CIDR IPv6 class.
+        :return: the same value.
+        """
+
+        if not value or not len(value):
+            raise WhitelistModelCIDRIPv6MissingException()
+
+        validator = Validator(value, WhitelistRule.CIDR_IPV6)
+
+        validator.validate()
+
+        if not validator.is_valid():
+            raise WhitelistModelCIDRIPv6NonValidException(validator.errors)
 
         return value
 
@@ -222,6 +269,38 @@ class WhitelistModelIPv6NonValidException(Exception):
 
     """
     Non valid IPv6.
+    """
+
+    pass
+
+class WhitelistModelCIDRIPv4MissingException(Exception):
+
+    """
+    No CIDR IPv4 class passed.
+    """
+
+    pass
+
+class WhitelistModelCIDRIPv4NonValidException(Exception):
+
+    """
+    Non valid CIDR IPv4 class.
+    """
+
+    pass
+
+class WhitelistModelCIDRIPv6MissingException(Exception):
+
+    """
+    No CIDR IPv6 class passed.
+    """
+
+    pass
+
+class WhitelistModelCIDRIPv6NonValidException(Exception):
+
+    """
+    Non valid CIDR IPv6 class.
     """
 
     pass

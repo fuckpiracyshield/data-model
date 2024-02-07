@@ -19,7 +19,7 @@ class TicketRule:
 
     DESCRIPTION = [
         Required(),
-        String(' .,-_@'),
+        String(' .,-_@/\'"'),
         Length(minimum = 3, maximum = 255)
     ]
 

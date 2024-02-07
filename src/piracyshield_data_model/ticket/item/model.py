@@ -205,7 +205,7 @@ class TicketItemModel(BaseModel):
         validator.validate()
 
         if not validator.is_valid():
-            raise TicketItemModelProviderIdentifierException(validator.errors)
+            raise TicketItemModelProviderIdentifierNonValidException(validator.errors)
 
         return value
 

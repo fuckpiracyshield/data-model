@@ -72,7 +72,7 @@ class TicketModel(BaseModel):
         self.assigned_to = self._validate_assigned_to(assigned_to) if assigned_to else None
 
         # ticket initial status
-        self.status = TicketStatusModel.CREATED.value
+        self.status = TicketStatusModel.CREATING.value
 
         # this is a blocking ticket
         self.genre = TicketGenreModel.BLOCKING.value

@@ -10,6 +10,6 @@ class ForensicArchiveRule:
 
     NAME = [
         Required(),
-        String(allowed = '.-_'),
-        Length(minimum = 6, maximum = 128)
+        String(allowed = ' .-_'),
+        Length(minimum = 6, maximum = 320)
     ]
